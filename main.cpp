@@ -6,9 +6,8 @@ void audioCallback(void* userdata, Uint8 *stream, int len);
 
 Uint8 *audioBuff = nullptr;
 Uint8 *audioBuffEnd = nullptr;
-Uint32 audioLen = 0;
 bool quit = false;
-Uint16 pitch = 0;
+char pitch = 1;
 
 int main()
 {
@@ -25,9 +24,10 @@ int main()
     } 
     wavSpec.callback = audioCallback;
     wavSpec.userdata = nullptr;
+    wavSpec.format = AUDIO_S16;
+    wavSpec.samples = 2048;
     audioBuff = wavBuff;
     audioBuffEnd = &wavBuff[wavLen];
-    audioLen = wavLen;
 
     if( SDL_OpenAudio(&wavSpec, NULL) < 0)
     {
@@ -36,10 +36,14 @@ int main()
     }
 
 
+    fprintf(stderr, "fmt  %u: ", wavSpec.format);
+
     SDL_PauseAudio(0);
     while(!quit)
     {
-        SDL_Delay(100);
+        SDL_Delay(500);
+        //pitch ++;
+        
     }
 
     SDL_CloseAudio();
@@ -48,12 +52,9 @@ int main()
 }
 
 
-Uint32 sampleIndex = 0;
 void audioCallback(void* userdata, Uint8 *stream, int len)
 {
     Uint32 length = (Uint32)len;
-    length = (length > audioLen ? audioLen : length);
-
     for(Uint32 i = 0; i < length; i++)
     {
         if(audioBuff > audioBuffEnd)
@@ -61,9 +62,10 @@ void audioCallback(void* userdata, Uint8 *stream, int len)
             quit = true;
             return;
         }
+        
         stream[i] = audioBuff[0];
-        audioBuff += 1 + pitch * 2;
-        fprintf(stdout, "pitch: %u\n", pitch);
+        stream[++i] = audioBuff[0];
+        audioBuff += 2 * pitch;
     }
 }
 

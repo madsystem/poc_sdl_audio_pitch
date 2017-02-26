@@ -64,7 +64,7 @@ void audioCallback(void* userdata, Uint8 *stream, int len)
         }
         
         stream[i] = audioBuff[0];
-        stream[++i] = audioBuff[0];
+        stream[++i] = audioBuff[1];
         audioBuff += 2 * pitch;
     }
 }
